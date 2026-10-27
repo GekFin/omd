@@ -1,3 +1,6 @@
+from collections import Counter
+
+
 def task1():
     print('задача 1')
     moscow = {201, 202, 203, 204}
@@ -11,32 +14,20 @@ def task1():
 def task2():
     print('задача 2')
     queries = [
-        "чехол",
-        "iphone",
-        "чехол",
-        "наушники",
-        "iphone",
-        "iphone",
-        "кабель",
-        "чехол",
-        "iphone",
+        "чехол", "iphone", "чехол", "наушники", "iphone",
+        "iphone", "кабель", "чехол", "iphone",
     ]
     print(len(queries))
-    most_count = 0
-    unique = []
-    for i in set(queries):
-        print(f'{i} ввели {queries.count(i)} раз')
-        if queries.count(i) == 1:
-            unique.append(i)
-        if most_count < queries.count(i):
-            most_count = queries.count(i)
-            most_count_name = i
-
-    print(f'самый частый запрос: {most_count_name}')
-    print(
-        f'его доля среди всех запросов = '
-        f'{(most_count / len(queries)):.2f}'
-    )
+    counts = Counter(queries)
+    
+    for query, count in counts.items():
+        print(f'{query} ввели {count} раз')
+        
+    most_common = counts.most_common(1)[0]
+    print(f'самый частый запрос: {most_common[0]}')
+    print(f'его доля среди всех запросов = {(most_common[1] / len(queries)):.2f}')
+    
+    unique = [query for query, count in counts.items() if count == 1]
     print('уникальные запросы:', *unique)
 
 
@@ -52,12 +43,12 @@ def task3():
     ]
     print(
         'сумма возвратов:',
-        sum([i['amount'] for i in orders if i['status'] == 'returned'])
+        sum([order['amount'] for order in orders if order['status'] == 'returned'])
     )
-    who_returned = {i['buyer'] for i in orders if i['status'] == 'returned'}
+    who_returned = {order['buyer'] for order in orders if order['status'] == 'returned'}
     print('заказ вернули:', *who_returned)
     delivered_amount = [
-        i['amount'] for i in orders if i['status'] == 'delivered'
+        order['amount'] for order in orders if order['status'] == 'delivered'
     ]
     print('доставлено заказов:', len(delivered_amount))
     print(
@@ -75,18 +66,18 @@ def task4():
         {"day": "чт", "orders": 10, "revenue": 12_000, "returns": 3},
         {"day": "пт", "orders": 30, "revenue": 48_000, "returns": 3},
     ]
-    print('выручка за всю неделю =', sum([i['revenue'] for i in days]))
+    print('выручка за всю неделю =', sum([day['revenue'] for day in days]))
     print(
         'день с наибольшей выручкой:',
         max(days, key=lambda x: x['revenue'])['day']
     )
     print(
-        'средняя выручка каждого дня\n',
-        {i['day']: i['revenue'] / i['orders'] for i in days}
+        'средняя выручка на один заказ для каждого дня:\n',
+        {day['day']: day['revenue'] / day['orders'] for day in days}
     )
     print(
         'дни где возвратов >20%:',
-        *[i['day'] for i in days if i['returns'] / i['orders'] > 0.2]
+        *[day['day'] for day in days if day['returns'] / day['orders'] > 0.2]
     )
 
 
@@ -105,26 +96,26 @@ def task5():
         {"id": 5, "product": "Кабель", "stars": 1},
     ]
     products = {}
-    for i in reviews:
-        review_id = i['id']
+    for review in reviews:
+        review_id = review['id']
         if review_id not in products:
             products[review_id] = {
-                'product': i['product'].lower(),
+                'product': review['product'].lower(),
                 'sum': 0,
                 'count': 0,
             }
-        products[review_id]['sum'] += i['stars']
+        products[review_id]['sum'] += review['stars']
         products[review_id]['count'] += 1
 
-    for _, i in products.items():
-        average = i['sum'] / i['count']
-        print(f'{i["product"]}: {average}')
+    for _, product_data in products.items():
+        average = product_data['sum'] / product_data['count']
+        print(f'{product_data["product"]}: {average}')
 
     worse_product = min(
         [
-            (review_id, i)
-            for review_id, i in products.items()
-            if i['count'] > 1
+            (review_id, product_data)
+            for review_id, product_data in products.items()
+            if product_data['count'] > 1
         ],
         key=lambda x: x[1]['sum'] / x[1]['count']
     )
@@ -133,7 +124,7 @@ def task5():
         worse_product[1]['product']
     )
 
-    bad_reviews = [i for i in reviews if i['stars'] < 3]
+    bad_reviews = [review for review in reviews if review['stars'] < 3]
     print('отзывов на 1 или 2 звезды:', len(bad_reviews))
     print('их доля:', len(bad_reviews) / len(reviews))
 
@@ -144,4 +135,3 @@ if __name__ == '__main__':
     task3()
     task4()
     task5()
-  
